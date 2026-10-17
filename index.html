@@ -1,0 +1,435 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="theme-color" content="#090914">
+
+<title>VibeZone UG 🇺🇬</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{margin:0;background:#090914;color:white;font-family:Arial,sans-serif;padding-bottom:75px}
+
+header{position:sticky;top:0;background:#101020;padding:15px;z-index:5;border-bottom:1px solid #292942}
+
+.logo{font-size:25px;font-weight:900;color:#ff3d8b}
+
+.logo span{color:#8b65ff}
+
+.tag{font-size:12px;color:#aaa;margin-top:5px}
+
+.search{width:100%;padding:12px;margin-top:13px;border-radius:12px;border:1px solid #333;background:#1b1b2d;color:white;font-size:15px}
+
+h3{margin:18px 14px 10px}
+
+.categories{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
+
+.cat{background:#202037;border:0;color:white;padding:10px 14px;border-radius:22px;white-space:nowrap}
+
+.cat.active{background:#ff3d8b}
+
+#feed{padding:0 12px}
+
+.card{background:#151525;border-radius:16px;margin:12px 0;overflow:hidden;border:1px solid #27273c}
+
+.video{width:100%;max-height:480px;aspect-ratio:9/12;background:#050509;object-fit:contain;display:block}
+
+.video-placeholder{height:210px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#42205d,#121d46,#7e2259);font-size:45px}
+
+.info{padding:12px}
+
+.user{font-weight:bold;color:#ff75b1}
+
+.caption{margin:8px 0;line-height:1.5;overflow-wrap:anywhere}
+
+.actions{display:flex;gap:16px;flex-wrap:wrap}
+
+.actions button,.smallbtn{border:0;background:#28283e;color:white;padding:9px 12px;border-radius:9px}
+
+.actions button.liked{color:#ff5597}
+
+.muted{color:#aaa;font-size:12px}
+
+.panel{margin:14px;padding:15px;background:#151525;border-radius:15px}
+
+input,textarea,select{width:100%;padding:12px;margin:7px 0;border-radius:10px;border:1px solid #393950;background:#202034;color:white}
+
+.primary{width:100%;padding:13px;border:0;border-radius:12px;background:linear-gradient(90deg,#ff3d8b,#8257ff);color:white;font-weight:bold;margin-top:8px}
+
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#111120;border-top:1px solid #303047;padding:12px 3px;z-index:10}
+
+nav button{border:0;background:none;color:#ddd;font-size:12px}
+
+nav button b{display:block;font-size:20px;margin-bottom:4px}
+
+.hidden{display:none!important}
+
+.comments{margin-top:12px}
+
+.comment{padding:8px 0;border-bottom:1px solid #333}
+
+footer{text-align:center;color:#777;padding:20px;font-size:12px}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="logo">VibeZone <span>UG 🇺🇬</span></div>
+
+  <div class="tag">Your vibe. Your people. Your Uganda.</div>
+
+  <input class="search" id="search" placeholder="🔍 Search videos, creators..." oninput="render()">
+
+</header>
+
+<section id="home">
+
+  <h3>🔥 Explore vibes</h3>
+
+  <div class="categories" id="categories"></div>
+
+  <div id="feed"></div>
+
+</section>
+
+<section id="uploadPage" class="hidden">
+
+  <div class="panel">
+
+    <h2>📤 Upload your vibe</h2>
+
+    <p class="muted">Share your video with the VibeZone community.</p>
+
+    <input id="creator" placeholder="Your creator name">
+
+    <textarea id="caption" placeholder="What is your video about?"></textarea>
+
+    <select id="uploadCategory">
+
+      <option>Comedy</option><option>Music</option><option>Dance</option>
+
+      <option>Fashion</option><option>Sports</option><option>Gaming</option>
+
+      <option>Lifestyle</option><option>Memes</option><option>Other</option>
+
+    </select>
+
+    <label>Select a video</label>
+
+    <input id="videoFile" type="file" accept="video/*">
+
+    <button class="primary" onclick="uploadVideo()">POST VIDEO</button>
+
+    <p class="muted">This demo keeps uploaded videos on this device only. Online sharing requires video hosting.</p>
+
+  </div>
+
+</section>
+
+<section id="profilePage" class="hidden">
+
+  <div class="panel">
+
+    <h2>👤 Your account</h2>
+
+    <p class="muted">Enter a display name to personalise your local profile.</p>
+
+    <input id="profileName" placeholder="Your name">
+
+    <button class="primary" onclick="saveProfile()">SAVE PROFILE</button>
+
+    <p id="profileStatus" class="muted"></p>
+
+    <hr style="border-color:#333">
+
+    <h3>Your activity</h3>
+
+    <p id="activity">Videos and likes will appear here.</p>
+
+  </div>
+
+</section>
+
+<section id="popularPage" class="hidden">
+
+  <h3>⭐ Popular videos</h3>
+
+  <div id="popularFeed"></div>
+
+</section>
+
+<nav>
+
+  <button onclick="page('home')"><b>🏠</b>Home</button>
+
+  <button onclick="page('popularPage')"><b>🔥</b>Popular</button>
+
+  <button onclick="page('uploadPage')"><b>➕</b>Upload</button>
+
+  <button onclick="page('profilePage')"><b>👤</b>Profile</button>
+
+</nav>
+
+<footer>VibeZone UG 🇺🇬 · Made for the vibes</footer>
+
+<script>
+
+const cats=["All","Comedy","Music","Dance","Fashion","Sports","Gaming","Lifestyle","Memes"];
+
+let activeCat="All";
+
+let profile=localStorage.getItem("vz_name")||"Guest";
+
+let videos=[
+
+ {id:1,user:"VibeZone UG",cat:"Music",caption:"Welcome to VibeZone UG! 🇺🇬 Share your favourite vibes.",url:"",likes:0,comments:[],demo:true},
+
+ {id:2,user:"VibeZone UG",cat:"Comedy",caption:"Comedy corner 😂 Add your own funny videos!",url:"",likes:0,comments:[],demo:true},
+
+ {id:3,user:"VibeZone UG",cat:"Dance",caption:"Dance challenge 💃🕺 Show us your moves!",url:"",likes:0,comments:[],demo:true}
+
+];
+
+let liked=JSON.parse(localStorage.getItem("vz_liked")||"[]");
+
+let selectedFiles={};
+
+const categories=document.getElementById("categories");
+
+cats.forEach(c=>{
+
+ let b=document.createElement("button");
+
+ b.className="cat"+(c==="All"?" active":"");
+
+ b.textContent=c;
+
+ b.onclick=()=>{
+
+   activeCat=c;
+
+   document.querySelectorAll(".cat").forEach(x=>x.classList.toggle("active",x.textContent===c));
+
+   render();
+
+ };
+
+ categories.appendChild(b);
+
+});
+
+function esc(s){
+
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+}
+
+function card(v){
+
+ const isLiked=liked.includes(v.id);
+
+ const media=v.url
+
+ ? `<video class="video" controls playsinline preload="metadata" src="${esc(v.url)}"></video>`
+
+ : `<div class="video-placeholder">${v.cat==="Music"?"🎵":v.cat==="Comedy"?"😂":v.cat==="Dance"?"💃":"🎬"}</div>`;
+
+ return `<article class="card">
+
+ ${media}
+
+ <div class="info">
+
+ <div class="user">👤 ${esc(v.user)}</div>
+
+ <div class="muted">${esc(v.cat)} ${v.demo?"· Welcome post":""}</div>
+
+ <div class="caption">${esc(v.caption)}</div>
+
+ <div class="actions">
+
+ <button class="${isLiked?"liked":""}" onclick="likeVideo(${v.id})">❤️ ${v.likes+(isLiked?1:0)}</button>
+
+ <button onclick="commentVideo(${v.id})">💬 ${v.comments.length}</button>
+
+ <button onclick="shareVideo(${v.id})">↗ Share</button>
+
+ </div>
+
+ <div class="comments">
+
+ ${v.comments.map(c=>`<div class="comment"><b>${esc(c.user)}:</b> ${esc(c.text)}</div>`).join("")}
+
+ </div>
+
+ </div></article>`;
+
+}
+
+function render(){
+
+ const query=document.getElementById("search").value.toLowerCase();
+
+ let filtered=videos.filter(v=>
+
+ (activeCat==="All"||v.cat===activeCat)&&
+
+ (v.caption+" "+v.user+" "+v.cat).toLowerCase().includes(query)
+
+ );
+
+ document.getElementById("feed").innerHTML=filtered.length
+
+ ?filtered.slice().reverse().map(card).join("")
+
+ :'<div class="panel">No videos found. Try another search or category.</div>';
+
+ let popular=videos.filter(v=>v.likes>=0).slice().sort((a,b)=>b.likes-a.likes);
+
+ document.getElementById("popularFeed").innerHTML=popular.map(card).join("");
+
+ document.getElementById("profileName").value=profile==="Guest"?"":profile;
+
+ document.getElementById("activity").textContent=
+
+ "Videos posted on this device: "+videos.filter(v=>!v.demo).length+
+
+ " · Likes you gave: "+liked.length;
+
+}
+
+function likeVideo(id){
+
+ if(liked.includes(id)){liked=liked.filter(x=>x!==id)}
+
+ else{liked.push(id)}
+
+ localStorage.setItem("vz_liked",JSON.stringify(liked));
+
+ render();
+
+}
+
+function commentVideo(id){
+
+ const text=prompt("Write your comment:");
+
+ if(!text||!text.trim())return;
+
+ const v=videos.find(x=>x.id===id);
+
+ v.comments.push({user:profile,text:text.trim()});
+
+ render();
+
+}
+
+async function shareVideo(id){
+
+ const v=videos.find(x=>x.id===id);
+
+ const text=v.caption+" — "+v.cat+" on VibeZone UG 🇺🇬";
+
+ if(navigator.share){
+
+   try{await navigator.share({title:"VibeZone UG",text})}catch(e){}
+
+ }else if(navigator.clipboard){
+
+   navigator.clipboard.writeText(text).then(()=>alert("Caption copied!"));
+
+ }else{alert(text)}
+
+}
+
+function uploadVideo(){
+
+ const file=document.getElementById("videoFile").files[0];
+
+ const caption=document.getElementById("caption").value.trim();
+
+ const user=document.getElementById("creator").value.trim()||profile;
+
+ const cat=document.getElementById("uploadCategory").value;
+
+ if(!file){alert("Please select a video first.");return}
+
+ if(file.size>50*1024*1024){
+
+   alert("Please select a video smaller than 50 MB.");
+
+   return;
+
+ }
+
+ if(!file.type.startsWith("video/")){
+
+   alert("Please select a valid video file.");return;
+
+ }
+
+ const url=URL.createObjectURL(file);
+
+ videos.push({id:Date.now(),user,cat,caption:caption||"My new video!",url,likes:0,comments:[],demo:false});
+
+ activeCat="All";
+
+ document.querySelectorAll(".cat").forEach(x=>x.classList.toggle("active",x.textContent==="All"));
+
+ document.getElementById("caption").value="";
+
+ document.getElementById("videoFile").value="";
+
+ render();
+
+ page("home");
+
+ alert("Video added to this session! It is not uploaded online.");
+
+}
+
+function saveProfile(){
+
+ profile=document.getElementById("profileName").value.trim()||"Guest";
+
+ localStorage.setItem("vz_name",profile);
+
+ document.getElementById("profileStatus").textContent="Profile name saved on this device: "+profile;
+
+ render();
+
+}
+
+function page(id){
+
+ ["home","uploadPage","profilePage","popularPage"].forEach(x=>
+
+ document.getElementById(x).classList.toggle("hidden",x!==id)
+
+ );
+
+ window.scrollTo(0,0);
+
+}
+
+render();
+
+</script>
+
+</body>
+
+</html>
